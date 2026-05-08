@@ -96,6 +96,30 @@ describe('stampFiles', () => {
     }
   });
 
+  it('discovers workspace packages with manypkg by default', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'changeset-stamp-'));
+    try {
+      await mkdir(join(dir, 'packages/a'), { recursive: true });
+      await mkdir(join(dir, 'packages/b'), { recursive: true });
+      await writeFile(join(dir, 'package.json'), JSON.stringify({ name: 'root', version: '0.0.0', private: true }));
+      await writeFile(join(dir, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n');
+      await writeFile(join(dir, 'packages/a/package.json'), JSON.stringify({ name: 'a', version: '1.0.0' }));
+      await writeFile(join(dir, 'packages/b/package.json'), JSON.stringify({ name: 'b', version: '2.0.0' }));
+      await writeFile(join(dir, 'packages/a/version.ts'), '__VERSION__');
+      await writeFile(join(dir, 'packages/b/version.ts'), '__VERSION__');
+
+      const packages = await configToPackages({ files: ['version.ts'] }, { cwd: dir });
+      const results = await stampFiles({ cwd: dir, packages });
+
+      expect(packages.map((item) => item.packageJson)).toEqual(['packages/a/package.json', 'packages/b/package.json']);
+      expect(results.map((item) => item.version).sort()).toEqual(['1.0.0', '2.0.0']);
+      await expect(readFile(join(dir, 'packages/a/version.ts'), 'utf8')).resolves.toBe('1.0.0');
+      await expect(readFile(join(dir, 'packages/b/version.ts'), 'utf8')).resolves.toBe('2.0.0');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
   it('expands monorepo package globs from config', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'changeset-stamp-'));
     try {

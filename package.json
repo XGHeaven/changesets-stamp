@@ -4,15 +4,16 @@
   "description": "Post-Changesets helper that stamps package version placeholders after version bumps.",
   "type": "module",
   "bin": {
-    "changesets-stamp": "./dist/cli.js"
+    "changesets-stamp": "./bin/changesets-stamp.js"
   },
   "files": [
+    "bin",
     "dist",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup src/cli.ts --format esm --dts --clean",
+    "build": "tsc -p tsconfig.build.json",
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
@@ -29,12 +30,13 @@
   "packageManager": "pnpm@9.9.0",
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "@manypkg/get-packages": "^3.1.0",
+    "citty": "^0.2.2",
     "fast-glob": "^3.3.3"
   }
 }

@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import fg from 'fast-glob';
+import { getPackages } from '@manypkg/get-packages';
 
 export const DEFAULT_SNAPSHOT_PLACEHOLDER = '__VERSION__';
 export const DEFAULT_RELEASE_PLACEHOLDER = '__VERSION!__';
@@ -56,7 +57,7 @@ export interface StampConfig {
   snapshotPlaceholder?: Placeholder;
   /** Release placeholder token(s). */
   releasePlaceholder?: Placeholder;
-  /** Package directories/globs or package.json paths. */
+  /** Per-package overrides. Omit to discover packages with @manypkg/get-packages. */
   packages?: Array<string | StampPackageConfig>;
 }
 
@@ -211,6 +212,12 @@ export async function expandPackagePatterns(patterns: string[], cwd = process.cw
   return [...new Set(matches)].sort();
 }
 
+
+export async function readWorkspacePackageJsons(cwd = process.cwd()): Promise<string[]> {
+  const { packages } = await getPackages(cwd);
+  return packages.map((pkg) => join(pkg.relativeDir, 'package.json')).sort();
+}
+
 export async function readChangesetStampConfig(
   configPath = CHANGESET_CONFIG_PATH,
   cwd = process.cwd(),
@@ -279,13 +286,15 @@ export async function configToPackages(
     }));
   }
 
-  return [
-    {
-      packageJson: options.packageJson ?? 'package.json',
-      files: defaultFiles,
-      exclude: defaultExclude,
-      placeholder: defaultPlaceholder,
-      mode: defaultMode,
-    },
-  ];
+  const packageJsons = options.packageJson
+    ? [options.packageJson]
+    : await readWorkspacePackageJsons(cwd);
+
+  return packageJsons.map((packageJson) => ({
+    packageJson,
+    files: defaultFiles,
+    exclude: defaultExclude,
+    placeholder: defaultPlaceholder,
+    mode: defaultMode,
+  }));
 }

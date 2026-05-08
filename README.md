@@ -17,8 +17,7 @@ Post-Changesets helper that updates version placeholders inside package files af
     "snapshotPlaceholder": "__VERSION__",
     "releasePlaceholder": "__VERSION!__",
     "include": ["src/**/*.ts", "README.md"],
-    "exclude": ["**/*.png", "**/fixtures/**"],
-    "packages": ["packages/*"]
+    "exclude": ["**/*.png", "**/fixtures/**"]
   }
 }
 ```
@@ -66,8 +65,7 @@ Configure which files are scanned with `include`/`files`, and skip files with `e
 {
   "changesetStamp": {
     "include": ["src/**/*.{ts,tsx,js,jsx}", "README.md"],
-    "exclude": ["**/*.snap", "**/dist/**"],
-    "packages": ["packages/*"]
+    "exclude": ["**/*.snap", "**/dist/**"]
   }
 }
 ```
@@ -95,20 +93,26 @@ changesets-stamp src/version.ts --placeholder __APP_VERSION__
 
 ## Monorepo / multi-package
 
-Each package uses its own `package.json` version.
+Each package uses its own `package.json` version. Package discovery is automatic through `@manypkg/get-packages`, so pnpm/npm/yarn/bun/lerna/rush workspace config is inherited instead of redefined here.
 
 ```bash
 changeset version
-changesets-stamp --packages "packages/*" "src/**/*.ts"
+changesets-stamp "src/**/*.ts"
 ```
 
-`--packages` accepts package directories or package.json globs:
+JSON config only needs the scan range:
 
-```bash
-changesets-stamp --packages "packages/*/package.json" "src/**/*.ts"
+```json
+{
+  "changesetStamp": {
+    "include": ["src/**/*.ts"]
+  }
+}
 ```
 
 ## Per-package config
+
+Omit `packages` for normal automatic discovery. If a package needs custom stamping behavior, list that package explicitly.
 
 ```json
 {
@@ -117,7 +121,6 @@ changesets-stamp --packages "packages/*/package.json" "src/**/*.ts"
     "include": ["src/version.ts"],
     "exclude": ["**/*.png"],
     "packages": [
-      "packages/*",
       {
         "package": "tools/cli",
         "mode": "release",

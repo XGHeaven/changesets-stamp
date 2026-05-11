@@ -1,6 +1,6 @@
 {
   "name": "changesets-stamp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Post-Changesets helper that stamps package version placeholders after version bumps.",
   "type": "module",
   "bin": {

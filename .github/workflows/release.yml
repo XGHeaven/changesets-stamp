@@ -1,22 +1,27 @@
-name: CI
+name: Release
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  test:
-    name: Test
+  release:
+    name: Release
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -26,6 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -39,9 +45,11 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Verify CLI entry
-        run: node bin/changesets-stamp.js --help
-
-      - name: Publish preview package
-        run: pnpm dlx pkg-pr-new publish --bin --commentWithSha
-
+      - name: Create release pull request or publish
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset version
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

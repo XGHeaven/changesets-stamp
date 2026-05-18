@@ -62,7 +62,6 @@ export interface StampConfig {
 }
 
 export interface ChangesetConfigWithStamp {
-  changesetStamp?: StampConfig;
   stamp?: StampConfig;
 }
 
@@ -225,7 +224,7 @@ export async function readChangesetStampConfig(
   const fullPath = resolve(cwd, configPath);
   const raw = await readFile(fullPath, 'utf8');
   const config = JSON.parse(raw) as ChangesetConfigWithStamp;
-  return config.changesetStamp ?? config.stamp ?? {};
+  return config.stamp ?? {};
 }
 
 export async function configToPackages(

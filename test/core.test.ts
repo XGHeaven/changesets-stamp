@@ -65,11 +65,25 @@ describe('changeset config', () => {
       await mkdir(join(dir, '.changeset'), { recursive: true });
       await writeFile(
         join(dir, '.changeset/config.json'),
-        JSON.stringify({ changelog: false, changesetStamp: { files: ['src/version.ts'] } }),
+        JSON.stringify({ changelog: false, stamp: { files: ['src/version.ts'] } }),
       );
       await expect(readChangesetStampConfig('.changeset/config.json', dir)).resolves.toEqual({
         files: ['src/version.ts'],
       });
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('ignores the old changesetStamp alias', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'changeset-stamp-'));
+    try {
+      await mkdir(join(dir, '.changeset'), { recursive: true });
+      await writeFile(
+        join(dir, '.changeset/config.json'),
+        JSON.stringify({ changelog: false, changesetStamp: { files: ['legacy.ts'] } }),
+      );
+      await expect(readChangesetStampConfig('.changeset/config.json', dir)).resolves.toEqual({});
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

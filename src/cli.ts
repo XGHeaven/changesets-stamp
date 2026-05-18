@@ -118,7 +118,7 @@ const main = defineCommand({
 
     const emptyFilePackages = packages.filter((pkg) => pkg.files.length === 0);
     if (emptyFilePackages.length > 0) {
-      throw new Error('No files configured. Pass file globs as positional arguments or set changesetStamp.include/files.');
+      throw new Error('No files configured. Pass file globs as positional arguments or set stamp.include/files.');
     }
 
     const results = await stampFiles({ packages, dryRun: Boolean(args.dryRun) });

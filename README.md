@@ -104,7 +104,7 @@ changesets-stamp --package packages/cli/package.json src/version.ts
   "changelog": false,
   "access": "restricted",
   "baseBranch": "main",
-  "changesetStamp": {
+  "stamp": {
     "mode": "snapshot",
     "snapshotPlaceholder": "__VERSION__",
     "releasePlaceholder": "__VERSION!__",
@@ -113,8 +113,6 @@ changesets-stamp --package packages/cli/package.json src/version.ts
   }
 }
 ```
-
-`stamp` is also accepted as a shorter alias for `changesetStamp`.
 
 Configuration fields:
 
@@ -165,7 +163,7 @@ Configure which files are scanned with `include`/`files`, and skip files with `e
 
 ```json
 {
-  "changesetStamp": {
+  "stamp": {
     "include": ["src/**/*.{ts,tsx,js,jsx}", "README.md"],
     "exclude": ["**/*.snap", "**/dist/**"]
   }
@@ -208,7 +206,7 @@ JSON config only needs the scan range:
 
 ```json
 {
-  "changesetStamp": {
+  "stamp": {
     "include": ["src/**/*.ts"]
   }
 }
@@ -222,7 +220,7 @@ Omit `packages` for normal automatic discovery. If a package needs custom stampi
 
 ```json
 {
-  "changesetStamp": {
+  "stamp": {
     "mode": "snapshot",
     "include": ["src/version.ts"],
     "exclude": ["**/*.png"],
